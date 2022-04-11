@@ -1,9 +1,9 @@
 const M_PI_180 = Math.PI/180
 const MAX_DEPTH=10;
 
-const myMap =  [[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1]]
-const xsize = 5;
-const ysize = 5;
+const myMap =  [[1,1,1,1,1,1],[1,0,0,0,0,1],[1,0,0,0,0,1],[1,0,0,0,0,1],[1,0,0,0,0,1],[1,1,1,1,1,1]]
+const xsize = 6;
+const ysize = 6;
 
 
 const grid_size=128;
@@ -12,12 +12,12 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-var playerx = 2;
+var playerx = 2.6;
 var playery = 2;
 
 var direction = 50; //grados
 
-const MAX_REBOTES = 2;
+const MAX_REBOTES = 500;
 
 
 window.onload = drawRay()
@@ -39,21 +39,21 @@ function onKeyboardPress(event) {
             break;
 
         case 'ArrowDown':
-            playery+=0.01;
+            playery+=0.03;
             drawRay()
             break;
         case 'ArrowUp':
-            playery-=0.01;
+            playery-=0.03;
             drawRay()
             break;
 
         case 'ArrowLeft':
-          playerx-=0.01;
+          playerx-=0.03;
           drawRay()
           break;
 
         case 'ArrowRight':
-          playerx+=0.01;
+          playerx+=0.03;
           drawRay()
           break;
     }
@@ -67,16 +67,15 @@ function onKeyboardPress(event) {
 
 
 function reflect(dir_x,dir_y,normal_x,normal_y){
-  var dot = dir_x * normal_x  - dir_y * normal_y;
-  var ref_x = 2*dot*normal_x + dir_x;
-  var ref_y = 2*dot*normal_y - dir_y;
+  var dot = dir_x * normal_x  + dir_y * normal_y;
+  var ref_x = dir_x - 2*dot*normal_x;
+  var ref_y = dir_y - 2*dot*normal_y;
 
   return [ref_x,ref_y]
 }
 
 function onKeyboardUp(event) {
     var code = event.code;
-    // Alert the key name and key code on keydown
     //console.log(`Key pressed ${name} \r\n Key code value: ${code}`);
    dict_keys[code] = false;
 }
@@ -86,7 +85,6 @@ function onKeyboardUp(event) {
     var canvas = document.getElementById('canvas');
     
     var ctx = canvas.getContext('2d'); // devuelve un CanvasRenderingContext2D
-    
 
     ctx.fillStyle = "black"
     ctx.fillRect(0,0,canvas.width,canvas.height)
@@ -111,29 +109,38 @@ function onKeyboardUp(event) {
     for(var i = 0; (i < MAX_REBOTES); i++){
 
         //dibujar rayo en direccion
-        // ctx.strokeStyle = `rgba(128,128,128,0.5)`;
-        // ctx.beginPath();
-        // ctx.moveTo(playerx*grid_size,playery*grid_size);
-        // ctx.lineTo(grid_size*(playerx+10*Math.cos(direction*Math.PI/180)),grid_size*(playerx+10*Math.sin(direction*Math.PI/180)));
-        // ctx.stroke();
+        //  ctx.strokeStyle = `rgba(128,128,128,0.5)`;
+        //  ctx.beginPath();
+        //  ctx.moveTo(raystart_x*grid_size,raystart_y*grid_size);
+        //  ctx.lineTo(grid_size*(raystart_x+10*Math.cos(ref_dir*Math.PI/180)),grid_size*(raystart_y+10*Math.sin(ref_dir*Math.PI/180)));
+        //  ctx.stroke();
         //
 
-        ctx.strokeStyle = `rgb(128,128,255)`;//`rgba(0,255,0, ${(MAX_REBOTES-i)/MAX_REBOTES})`;
-        ctx.beginPath();
-        ctx.moveTo(raystart_x*grid_size,raystart_y*grid_size);
+        
+        
         var [raycolision_x,raycolision_y,wallNormal_x, wallNormal_y] = castRay(raystart_x,raystart_y,ref_dir);
         
-        console.log(wallNormal_x,wallNormal_y)
+        // dibujar flecha con normal del objeto colisionado
+        // canvas_arrow(ctx, raycolision_x * grid_size,raycolision_y* grid_size,(raycolision_x+wallNormal_x)* grid_size, (raycolision_y+wallNormal_y)* grid_size)
+        // ctx.stroke()
+
+        ctx.strokeStyle = `rgba(0,255,0, ${(MAX_REBOTES-i)/MAX_REBOTES})`; //`rgb(128,128,255)`;//
+        ctx.beginPath();
+        ctx.moveTo(raystart_x*grid_size,raystart_y*grid_size);
         ctx.lineTo(raycolision_x*grid_size,raycolision_y*grid_size);
         ctx.stroke();
 
-
-
         var raystart_x = raycolision_x;
-        var raystart_y= raycolision_y;
+        var raystart_y = raycolision_y;
 
         var [vecreflect_x, vecreflect_y]  = reflect(Math.cos(ref_dir*M_PI_180),Math.sin(ref_dir*M_PI_180),wallNormal_x,wallNormal_y)
-        ref_dir = Math.atan(vecreflect_y,vecreflect_x)*180/Math.PI;
+        ref_dir = Math.atan2(vecreflect_y,vecreflect_x)*180/Math.PI;
+
+        if (ref_dir >= 360) {
+          ref_dir -= 360;
+       } else if (ref_dir < 0) {
+        ref_dir +=360;
+       }
         //await sleep(1000);    
     }
 }
@@ -179,7 +186,7 @@ function getXYSteps(direction) {
   }
 
 
-  function distance(x1,x2,y1,y2){
+  function distance(x1,y1,x2,y2){
 	return (((x2-x1)**2) + ((y2-y1)**2))**(0.5);
   }
     function getTile(x, y) {
@@ -187,12 +194,12 @@ function getXYSteps(direction) {
     return myMap[y][x];
   }
 
-  function castRay(playerx, playery, direction) {
+  function castRay(raystart_x, raystart_y, direction) {
 
-    tileX = Math.floor(playerx);
-    dx = playerx - tileX;
-    tileY = Math.floor(playery);
-    dy = playery - tileY;
+    tileX = Math.floor(raystart_x);
+    dx = raystart_x - tileX;
+    tileY = Math.floor(raystart_y);
+    dy = raystart_y - tileY;
   
     x = tileX;
     y = tileY;
@@ -226,9 +233,9 @@ function getXYSteps(direction) {
      
 
       //
-      //var canvas = document.getElementById('canvas');
+      var canvas = document.getElementById('canvas');
     
-      //var ctx = canvas.getContext('2d'); // devuelve un CanvasRenderingContext2D
+      var ctx = canvas.getContext('2d'); // devuelve un CanvasRenderingContext2D
 
       //
      for (i = 0; i <= MAX_DEPTH && !(wallFoundX && wallFoundY) ; i++) {
@@ -261,30 +268,34 @@ function getXYSteps(direction) {
     var [colhx,colhy] = [xIntercept, y+(tileStepY == 1)];
     var [colvx,colvy] = [x+(tileStepX == 1), yIntercept];
 
-     var d1 = distance(playerx,playery,colhx,colhy);
-     var d2 = distance(playerx,playery,colvx,colvy);
+     var d1 = distance(raystart_x,raystart_y,colhx,colhy);
+     var d2 = distance(raystart_x,raystart_y,colvx,colvy);
 
+
+     // dibujar circulos en 2 las posibles paredes de colision
+    //   ctx.beginPath();
+    //   ctx.strokeStyle = `rgba(0,255,0,0.5)`;
+    //  ctx.arc(grid_size*colhx, grid_size*colhy, grid_size/10, 0, 2 * Math.PI);
+    //  ctx.stroke();
 
     //  ctx.beginPath();
-    //  ctx.strokeStyle = `rgba(0,255,0,0.5)`;
-    // ctx.arc(grid_size*colhx, grid_size*colhy, grid_size/10, 0, 2 * Math.PI);
+    //  ctx.strokeStyle = `rgba(0,0,255,0.5)`;
+    //  ctx.arc(grid_size*colvx, grid_size*colvy, grid_size/10, 0, 2 * Math.PI);
     // ctx.stroke();
+    //
 
-    // ctx.beginPath();
-    // ctx.strokeStyle = `rgba(0,0,255,0.5)`;
-    // ctx.arc(grid_size*colvx, grid_size*colvy, grid_size/10, 0, 2 * Math.PI);
-    //ctx.stroke();
+    console.log(`green d: ${d1}, blue d: ${d2}`)
     var wallNormalX , wallNormalY;
      if (d1 < d2) {
          var [colisionx, colisiony] = [colhx, colhy];
-         if (tileStepX == 1){
+         if (tileStepY == 1){
           [wallNormalX , wallNormalY] = [0,-1];
          } else {
           [wallNormalX , wallNormalY] = [0,1];
          }
      } else {
         var [colisionx, colisiony] = [colvx, colvy];
-        if (tileStepY == 1){
+        if (tileStepX == 1){
           [wallNormalX , wallNormalY] = [-1,0];
          } else {
           [wallNormalX , wallNormalY] = [1,0];
@@ -293,3 +304,22 @@ function getXYSteps(direction) {
 
      return [colisionx,colisiony,wallNormalX,wallNormalY];
  }
+
+
+
+
+
+
+ //dibujar flecha
+
+ function canvas_arrow(context, fromx, fromy, tox, toy) {
+  var headlen = 10; // length of head in pixels
+  var dx = tox - fromx;
+  var dy = toy - fromy;
+  var angle = Math.atan2(dy, dx);
+  context.moveTo(fromx, fromy);
+  context.lineTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+  context.moveTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+}
