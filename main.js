@@ -1,14 +1,21 @@
 //VER DE USAR GLMATRIX PARA EL RAYCAST? (si es posible)
 
-const M_PI_180 = Math.PI/180
+const M_2_PI = 2*Math.PI
+
+const M_PI_2 = Math.PI/2
+
+const M_3_PI_2 = 3*Math.PI/2
+
 const MAX_DEPTH=10;
 
-const myMap =  [[1,1,1,1,1,1],[1,0,0,0,0,1],[1,0,0,0,0,1],[1,0,0,0,0,1],[1,0,0,0,0,1],[1,1,1,1,1,1]]
-const xsize = 6;
-const ysize = 6;
+const myMap =  [[1,1,1,1,1,1,1],[1,1,0,0,0,0,1],[1,1,0,0,0,0,1],[1,0,1,0,0,0,1],[1,0,0,1,0,0,1],[1,0,0,0,0,1,1],[1,1,1,1,1,1,1]]
+const xsize = 7;
+const ysize = 7;
 
 
-const grid_size=200;
+
+
+const grid_size=150;
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -19,7 +26,7 @@ var playery = 2;
 
 var direction = 50; //grados
 
-const MAX_REBOTES = 30;
+const MAX_REBOTES = 5;
 
 
 window.onload = main()
@@ -35,12 +42,12 @@ function mouse_monitor(e) {
     var mouse_x = e.pageX;
     var mouse_y = e.pageY;
 
-    direction = Math.atan2(mouse_y - (playery-1)*(grid_size), mouse_x-(playerx-1)*(grid_size))*180/Math.PI
+    direction = Math.atan2(mouse_y - (playery-1)*(grid_size), mouse_x-(playerx-1)*(grid_size))//*180/Math.PI
     
-    if (direction >= Math.PI*2) {
-      direction -= Math.PI*2;
+    if (direction >= M_2_PI) {
+      direction -= M_2_PI;
     } else if (direction < 0) {
-        direction +=360;
+        direction +=M_2_PI;
     }
 
     main()
@@ -113,13 +120,13 @@ function main(){
       var raystart_x = raycolision_x;
       var raystart_y = raycolision_y;
 
-      var [vecreflect_x, vecreflect_y]  = reflect(Math.cos(ref_dir*M_PI_180),Math.sin(ref_dir*M_PI_180),wallNormal_x,wallNormal_y)
-      ref_dir = Math.atan2(vecreflect_y,vecreflect_x)*180/Math.PI;
+      var [vecreflect_x, vecreflect_y]  = reflect(Math.cos(ref_dir),Math.sin(ref_dir),wallNormal_x,wallNormal_y)
+      ref_dir = Math.atan2(vecreflect_y,vecreflect_x)//*180/Math.PI;
 
-      if (ref_dir >= 360) {
-        ref_dir -= 360;
+      if (ref_dir >= M_2_PI) {
+        ref_dir -= M_2_PI;
      } else if (ref_dir < 0) {
-      ref_dir +=360;
+      ref_dir +=M_2_PI;
      }
   }
 
@@ -129,7 +136,7 @@ function drawMap(ctx,map){
   ctx.fillStyle = `rgba(255,0,0,0.5)`
   for (var i = 0; i < xsize; i++){
     for (var j = 0; j < ysize; j++){
-      if (map[i][j]==1){
+      if (map[j][i]==1){
         ctx.fillRect(i*grid_size - grid_size,j*grid_size- grid_size,grid_size,grid_size);
       }
     }
@@ -145,13 +152,13 @@ function drawMap(ctx,map){
 }
 
 function getTileSteps(dir) {
-    if ((0 < dir) && (dir <= 90)) {
+    if ((0 <= dir) && (dir <= M_PI_2)) {
       tileStepX = 1;
       tileStepY = 1;
-    } else if ((90 < dir) && (dir <= 180)) {
+    } else if ((M_PI_2 < dir) && (dir <= Math.PI)) {
       tileStepX = -1;
       tileStepY = 1;
-    } else if ((180 < dir) && (dir <= 270)) {
+    } else if ((Math.PI < dir) && (dir <= M_3_PI_2)) {
       tileStepX = -1;
       tileStepY = -1;
     } else {
@@ -163,20 +170,20 @@ function getTileSteps(dir) {
 
 
 function getXYSteps(dir) {
-    if (dir == 360) {
+    if (dir == 0) {
       xStep = 60;
       yStep = 0;
-    } else if (dir == 180) {
+    } else if (dir == Math.PI) {
       xStep = -60;
       yStep = 0;
-    } else if (dir == 90) {
+    } else if (dir == M_PI_2) {
       xStep = 0;
       yStep = -60;
-    } else if (dir == 270) {
+    } else if (dir == M_3_PI_2) {
       xStep = 0;
       yStep = 60;
     } else {
-      auxTanDirection = Math.tan(dir * M_PI_180);
+      auxTanDirection = Math.tan(dir);
       xStep = tileStepY/auxTanDirection;
       yStep = tileStepX*auxTanDirection;
     }
@@ -209,13 +216,13 @@ function getXYSteps(dir) {
  
      var xIntercept, yIntercept;
  
-     if (dir <= 180) {
+     if (dir <= Math.PI) {
        xIntercept = x + dx + (1-dy)*xStep;
      } else {
        xIntercept = x + dx + dy*xStep;
      }
  
-     if (dir >= 90 && dir <= 270) {
+     if (dir >= M_PI_2 && dir <= M_3_PI_2) {
        yIntercept = y + dy + (dx)*yStep;
      } else {
        yIntercept = y + dy + (1-dx)*yStep;
