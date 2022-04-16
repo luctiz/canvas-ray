@@ -9,11 +9,15 @@ const M_3_PI_2 = 3*Math.PI/2
 const MAX_DEPTH=10;
 
 const myMap =  [[1,1,1,1,1,1,1],[1,1,0,0,0,0,1],[1,1,0,0,0,0,1],[1,0,1,0,0,0,1],[1,0,0,1,0,0,1],[1,0,0,0,0,1,1],[1,1,1,1,1,1,1]]
+//[[1,1,1,1,1,1,1],[1,0,0,0,0,0,1],[1,0,0,0,0,0,1],[1,0,0,0,0,0,1],[1,0,0,0,0,0,1],[1,0,0,0,0,0,1],[1,1,1,1,1,1,1]]
+//
 const xsize = 7;
 const ysize = 7;
 
 
+const MAX_DIST = 8;
 
+//sigue habiendo algun error que hace que en las esquinas se haga mas luminoso con algun rebote. Sospecho que en el gradiente
 
 const grid_size=150;
 
@@ -21,13 +25,15 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-var playerx = 2.6;
-var playery = 2;
+var playerx = 3.51;
+var playery = 3.5;
 
 var direction = 50; //grados
 
-const MAX_REBOTES = 5;
+const MAX_REBOTES = 6;
 
+var canvas = document.getElementById('canvas');
+var myCtx = canvas.getContext('2d'); // devuelve un CanvasRenderingContext2D
 
 window.onload = main()
 
@@ -60,19 +66,19 @@ function onKeyboardPress(event) {
     switch(code){
         case 'KeyS':
             playery+=0.08;
-            drawRay()
+            main()
             break;
         case 'KeyW':
             playery-=0.08;
-            drawRay()
+            main()
             break;
         case 'KeyA':
           playerx-=0.08;
-          drawRay()
+          main()
           break;
         case 'KeyD':
           playerx+=0.08;
-          drawRay()
+          main()
           break;
     }
 }
@@ -88,8 +94,6 @@ function reflect(dir_x,dir_y,normal_x,normal_y){
 
 
 function main(){
-  var canvas = document.getElementById('canvas');
-  var myCtx = canvas.getContext('2d'); // devuelve un CanvasRenderingContext2D
   myCtx.fillStyle = "black"
   myCtx.fillRect(0,0,canvas.width,canvas.height)
 
@@ -97,10 +101,31 @@ function main(){
 
   drawMap(myCtx,myMap);
 
-  var raystart_x = playerx;
-  var raystart_y = playery;
-  var ref_dir = direction
-  for(var i = 0; (i < MAX_REBOTES); i++){
+  // drawRay(myCtx, playerx, playery, direction)
+  const ray_radius_amount = 400
+  for (var i = 0; i < ray_radius_amount; i++){
+   drawRay(myCtx, playerx, playery,direction-Math.PI/8+(Math.PI/4/ray_radius_amount)*i) // Math.PI*2*i / ray_radius_amount)
+  }
+}
+
+function drawMap(ctx,map){
+  ctx.fillStyle = `rgba(0,0,0,0.5)`
+  for (var i = 0; i < xsize; i++){
+    for (var j = 0; j < ysize; j++){
+      if (map[j][i]==1){
+        ctx.fillRect(i*grid_size - grid_size,j*grid_size- grid_size,grid_size,grid_size);
+      }
+    }
+  }
+}
+
+
+function drawRay(ctx,raystart_x, raystart_y, ref_dir){
+  var dist_restante = MAX_DIST;
+
+  var dist_acum = 0;
+  var i = 0;
+  while(/* dist_acum < MAX_DIST */dist_restante>0 && i < 20){
 
       //dibujar rayo en direccion
       //  ctx.strokeStyle = `rgba(128,128,128,0.5)`;
@@ -110,13 +135,17 @@ function main(){
       //  ctx.stroke();
       //
       
-      var [raycolision_x,raycolision_y,wallNormal_x, wallNormal_y] = castRay(raystart_x,raystart_y,ref_dir);
+      var [raycolision_x,raycolision_y,wallNormal_x, wallNormal_y, dist_colision] = castRay(raystart_x,raystart_y,ref_dir);
+
       
       // dibujar flecha con normal del objeto colisionado
       // canvas_arrow(ctx, raycolision_x * grid_size,raycolision_y* grid_size,(raycolision_x+wallNormal_x)* grid_size, (raycolision_y+wallNormal_y)* grid_size)
       // ctx.stroke()
-      drawRay(myCtx,raystart_x, raystart_y, raycolision_x,raycolision_y, `rgba(0,255,0, ${(MAX_REBOTES-i)/MAX_REBOTES})`)
+      drawLine(ctx,raystart_x, raystart_y, raycolision_x,raycolision_y, dist_colision, dist_restante)
+      dist_restante-=dist_colision//
 
+
+      dist_restante/=3 //reflectividad de pared. 1 sería simular un espejo
       var raystart_x = raycolision_x;
       var raystart_y = raycolision_y;
 
@@ -128,23 +157,35 @@ function main(){
      } else if (ref_dir < 0) {
       ref_dir +=M_2_PI;
      }
-  }
 
+     i++;
+  }
 }
 
-function drawMap(ctx,map){
-  ctx.fillStyle = `rgba(255,0,0,0.5)`
-  for (var i = 0; i < xsize; i++){
-    for (var j = 0; j < ysize; j++){
-      if (map[j][i]==1){
-        ctx.fillRect(i*grid_size - grid_size,j*grid_size- grid_size,grid_size,grid_size);
-      }
+
+ function drawLine(ctx,start_x,start_y,end_x,end_y,dist_colision,dist_restante){
+
+    // linear gradient from start to end of line
+    var grad= ctx.createLinearGradient(start_x*grid_size - grid_size ,start_y*grid_size - grid_size, end_x*grid_size - grid_size ,end_y*grid_size - grid_size);
+
+    
+    // grad.addColorStop(0, "blue");
+    // grad.addColorStop(1, "red");
+
+    if (dist_restante> dist_colision){
+      grad.addColorStop(0, `rgba(255,255,255,${(dist_restante)/MAX_DIST/4})`);
+      grad.addColorStop(1, `rgba(255,255,255,${(dist_restante-dist_colision)/MAX_DIST/4})`);
+    } else {
+      grad.addColorStop(0, `rgba(255,255,255,${(dist_restante)/MAX_DIST/4})`);
+      grad.addColorStop(dist_restante/dist_colision, `rgba(255,255,255,0)`);
+      grad.addColorStop(1, `rgba(255,255,255,0)`);
+
     }
-  }
-}
+    
 
- function drawRay(ctx,start_x,start_y,end_x,end_y,color){
-    ctx.strokeStyle = color; 
+    ctx.strokeStyle = grad;
+
+
     ctx.beginPath();
     ctx.moveTo(start_x*grid_size - grid_size ,start_y*grid_size - grid_size);
     ctx.lineTo(end_x*grid_size - grid_size ,end_y*grid_size - grid_size);
@@ -232,9 +273,9 @@ function getXYSteps(dir) {
      wallFoundX = null;
      wallFoundY = null;
      
-      var canvas = document.getElementById('canvas');
+      //var canvas = document.getElementById('canvas');
   
-     var ctx = canvas.getContext('2d'); // devuelve un CanvasRenderingContext2D
+     //var ctx = canvas.getContext('2d'); // devuelve un CanvasRenderingContext2D
 
       //
      for (i = 0; i <= MAX_DEPTH && !(wallFoundX && wallFoundY) ; i++) {
@@ -283,16 +324,16 @@ function getXYSteps(dir) {
     // ctx.stroke();
     //
 
-    var wallNormalX , wallNormalY;
+    var wallNormalX , wallNormalY, d;
      if (d1 < d2) {
-         var [colisionx, colisiony] = [colhx, colhy];
+         var [colisionx, colisiony,d] = [colhx, colhy, d1];
          if (tileStepY == 1){
           [wallNormalX , wallNormalY] = [0,-1];
          } else {
           [wallNormalX , wallNormalY] = [0,1];
          }
      } else {
-        var [colisionx, colisiony] = [colvx, colvy];
+        var [colisionx, colisiony, d] = [colvx, colvy, d2];
         if (tileStepX == 1){
           [wallNormalX , wallNormalY] = [-1,0];
          } else {
@@ -300,7 +341,7 @@ function getXYSteps(dir) {
          }
      }
 
-     return [colisionx,colisiony,wallNormalX,wallNormalY];
+     return [colisionx,colisiony,wallNormalX,wallNormalY, d];
  }
 
 
