@@ -101,7 +101,7 @@ function reflect(dir_x, dir_y, normal_x, normal_y) {
 }
 
 function renderWorld() {
-  myCtx.fillStyle = "black";
+  myCtx.fillStyle = colorFondo;
   myCtx.fillRect(0, 0, canvas.width, canvas.height);
 
   myCtx.lineWidth = 2;
@@ -206,15 +206,12 @@ function drawLine(
   // grad.addColorStop(1, "red");
 
   if (dist_restante > dist_colision) {
-    grad.addColorStop(0, `rgba(255,255,255,${dist_restante / MAX_DIST / 4})`);
-    grad.addColorStop(
-      1,
-      `rgba(255,255,255,${(dist_restante - dist_colision) / MAX_DIST / 4})`
-    );
+    grad.addColorStop(0, `${colorRayo}${decimalToHex(dist_restante * 255 / MAX_DIST / 4)}`);
+    grad.addColorStop(1,`${colorRayo}${decimalToHex((dist_restante - dist_colision) * 255 / MAX_DIST / 4)}`);
   } else {
-    grad.addColorStop(0, `rgba(255,255,255,${dist_restante / MAX_DIST / 4})`);
-    grad.addColorStop(dist_restante / dist_colision, `rgba(255,255,255,0)`);
-    grad.addColorStop(1, `rgba(255,255,255,0)`);
+    grad.addColorStop(0, `${colorRayo}${decimalToHex(dist_restante * 255 / MAX_DIST / 4)}`);
+    grad.addColorStop(dist_restante / dist_colision, `#00000000`);
+    grad.addColorStop(1, `#00000000`);
   }
 
   ctx.strokeStyle = grad;
@@ -387,9 +384,21 @@ function onAmplitudSliderChange(e){ // deberia ir de 1 a 360 grados pero los sup
 
 document.getElementById("colorPared").addEventListener("input", onColorParedChange)
 var colorPared = '#000000';
-var colorRayo = '#ffffff';
-function onColorParedChange(e){ // deberia ir de 1 a 360 grados pero los supera. Ver por qué
+function onColorParedChange(e){
   colorPared = e.target.value;
-  //amplitud_luz=parseInt(e.target.value) * Math.PI / 180;
+  renderWorld();
+}
+
+document.getElementById("colorRayo").addEventListener("input", onColorRayoChange)
+var colorRayo = '#ffffff';
+function onColorRayoChange(e){
+  colorRayo = e.target.value;
+  renderWorld();
+}
+
+document.getElementById("colorFondo").addEventListener("input", onColorFondoChange)
+var colorFondo = '#000000';
+function onColorFondoChange(e){
+  colorFondo = e.target.value;
   renderWorld();
 }
