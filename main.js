@@ -123,7 +123,7 @@ function renderWorld() {
 }
 
 function drawMap(ctx, map) {
-  ctx.fillStyle = `rgba(0,0,0,0.5)`;
+  ctx.fillStyle = colorPared;
   for (var i = 0; i < xsize; i++) {
     for (var j = 0; j < ysize; j++) {
       if (map[j][i] == 1) {
@@ -381,5 +381,15 @@ document.getElementById("AmplitudSlider").addEventListener("input", onAmplitudSl
 function onAmplitudSliderChange(e){ // deberia ir de 1 a 360 grados pero los supera. Ver por qué
   console.log(e.target.value);
   amplitud_luz=parseInt(e.target.value) * Math.PI / 180;
+  renderWorld();
+}
+
+
+document.getElementById("colorPared").addEventListener("input", onColorParedChange)
+var colorPared = '#000000';
+var colorRayo = '#ffffff';
+function onColorParedChange(e){ // deberia ir de 1 a 360 grados pero los supera. Ver por qué
+  colorPared = e.target.value;
+  //amplitud_luz=parseInt(e.target.value) * Math.PI / 180;
   renderWorld();
 }
