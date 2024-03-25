@@ -100,6 +100,8 @@ function reflect(dir_x, dir_y, normal_x, normal_y) {
   return [ref_x, ref_y];
 }
 
+var cantidadRayos = 100;
+
 function renderWorld() {
   myCtx.fillStyle = colorFondo;
   myCtx.fillRect(0, 0, canvas.width, canvas.height);
@@ -108,10 +110,8 @@ function renderWorld() {
 
   drawMap(myCtx, myMap);
 
-  // drawRay(myCtx, playerx, playery, direction)
-  const rays_count = 250;
-  const tope =  (direction+amplitud_luz)
-  const incremento = amplitud_luz / rays_count;
+  const tope =  (direction+amplitud_luz/2)
+  const incremento = amplitud_luz / cantidadRayos;
   for (var ray_direction = direction-(amplitud_luz/2); ray_direction < tope; ray_direction+=incremento) {
     drawRay(
       myCtx,
@@ -374,10 +374,14 @@ function canvas_arrow(context, fromx, fromy, tox, toy) {
 
 
 document.getElementById("AmplitudSlider").addEventListener("input", onAmplitudSliderChange)
-
-function onAmplitudSliderChange(e){ // deberia ir de 1 a 360 grados pero los supera. Ver por qué
-  console.log(e.target.value);
+function onAmplitudSliderChange(e){
   amplitud_luz=parseInt(e.target.value) * Math.PI / 180;
+  renderWorld();
+}
+
+document.getElementById("CantidadRayosSlider").addEventListener("input", onCantidadRayosSliderChange)
+function onCantidadRayosSliderChange(e){
+  cantidadRayos = e.target.value;
   renderWorld();
 }
 
