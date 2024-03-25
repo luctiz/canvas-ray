@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link href="main.css" rel="stylesheet" type="text/css" />
     <title>Reflexion rayos</title>
 
 </head>
-<body style="background-color: black;">
-    <canvas width="900px" height="900px" id="canvas" style="border: 1px solid rgb(30,30,30);"></canvas>
-    <input type="range" id="MySlider" value="25" min="1" max="360" onchange="() => onSliderMoved()">
+<body style="background-color: darkgray;">
+    <canvas width="900px" height="900px" id="canvas" style="background-color: black; border: 1px solid rgb(30,30,30);"></canvas>
+    <span><kbd>Q</kbd> to toggle map tile</span>
+    <br>
+    <input type="range" id="AmplitudSlider" value="25" min="1" max="360">
     <br>
     <script type="text/javascript" src="main.js" ></script>
 </body>

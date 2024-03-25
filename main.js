@@ -376,10 +376,9 @@ function canvas_arrow(context, fromx, fromy, tox, toy) {
 }
 
 
-let mySldr = document.getElementById("MySlider");
-mySldr.addEventListener("input", onSliderMoved)
+document.getElementById("AmplitudSlider").addEventListener("input", onAmplitudSliderChange)
 
-function onSliderMoved(e){ // deberia ir de 1 a 360 grados pero los supera. Ver por qué
+function onAmplitudSliderChange(e){ // deberia ir de 1 a 360 grados pero los supera. Ver por qué
   console.log(e.target.value);
   amplitud_luz=parseInt(e.target.value) * Math.PI / 180;
   renderWorld();
