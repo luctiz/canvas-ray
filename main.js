@@ -22,7 +22,6 @@ function sleep(ms) {
 
 export var direction = 50; //grados
 
-export var cantidadRayos = 100;
 
 
 
@@ -42,6 +41,30 @@ document.getElementById("colorFondo").addEventListener("input", onColorFondoChan
 export var colorFondo = '#000000';
 function onColorFondoChange(e){
   colorFondo = e.target.value;
+}
+
+
+document.getElementById("AmplitudSlider").addEventListener("input", onAmplitudSliderChange)
+function onAmplitudSliderChange(e){
+  amplitud_luz=parseInt(e.target.value) * Math.PI / 180;
+}
+
+export var cantidadRayos = 100;
+document.getElementById("CantidadRayosSlider").addEventListener("input", onCantidadRayosSliderChange)
+function onCantidadRayosSliderChange(e){
+  cantidadRayos = e.target.value;
+}
+
+export var intensidadRayo = 8;
+document.getElementById("IntensidadSlider").addEventListener("input", onIntensidadSliderChange)
+function onIntensidadSliderChange(e){
+  intensidadRayo = e.target.value;
+}
+
+export var reflectividadPared = 100;
+document.getElementById("ReflectividadParedSlider").addEventListener("input", onReflectividadParedSliderChange)
+function onReflectividadParedSliderChange(e){
+  reflectividadPared = e.target.value;
 }
 
 
@@ -133,15 +156,4 @@ function canvas_arrow(context, fromx, fromy, tox, toy) {
     tox - headlen * Math.cos(angle + Math.PI / 6),
     toy - headlen * Math.sin(angle + Math.PI / 6)
   );
-}
-
-
-document.getElementById("AmplitudSlider").addEventListener("input", onAmplitudSliderChange)
-function onAmplitudSliderChange(e){
-  amplitud_luz=parseInt(e.target.value) * Math.PI / 180;
-}
-
-document.getElementById("CantidadRayosSlider").addEventListener("input", onCantidadRayosSliderChange)
-function onCantidadRayosSliderChange(e){
-  cantidadRayos = e.target.value;
 }

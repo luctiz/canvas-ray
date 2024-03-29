@@ -1,3 +1,4 @@
+import { reflectividadPared } from "../../main.js";
 import { distance, reflect , decimalToHex, M_2_PI, M_PI_2, M_3_PI_2} from "../common.js";
 import Node from "../node.js";
 import { grid_size } from "./world.js";
@@ -23,7 +24,6 @@ export default class Ray extends Node{
       this.color_start = `${color.substr(0,7)}${decimalToHex(Math.min(255, dist_restante * 255 / this.max_dist ))}`;
 
       dist_restante -= dist_colision;
-      //dist_restante /= 2; //reflectividad de pared. 1 sería simular un espejo
 
       rebotes_restantes--;
       var [vecreflect_x, vecreflect_y] = reflect(
@@ -46,7 +46,10 @@ export default class Ray extends Node{
       if (dist_restante > 0 && rebotes_restantes > 0){
         this.stopAt = 1;
         this.color_end = `${color.substr(0,7)}${decimalToHex(Math.max(0, Math.min(255, dist_restante * 255 / this.max_dist )))}`;
-        let ray = new Ray(ctx, map, raycolision_x, raycolision_y, reflection_dir, this.color_end, dist_restante, rebotes_restantes);
+        dist_restante *= reflectividadPared / 100;
+        
+        this.color_newRay = `${color.substr(0,7)}${decimalToHex(Math.max(0, Math.min(255, dist_restante * 255 / this.max_dist )))}`;
+        let ray = new Ray(ctx, map, raycolision_x, raycolision_y, reflection_dir, this.color_newRay, dist_restante, rebotes_restantes);
         this.childNodes.push(ray);
       } else {
         this.stopAt = (dist_restante + dist_colision) / dist_colision; // a veces se actualiza raro esto. Capaz hay un bug por acá.
