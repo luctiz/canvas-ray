@@ -1,9 +1,8 @@
 import Player from './modules/nodes/player.js';
 import { Map } from './modules/nodes/map.js';
 import {World, grid_size} from './modules/nodes/world.js';
+import { adjustDirection } from './modules/common.js';
 //VER DE USAR GLMATRIX PARA EL RAYCAST? (si es posible)
-
-const M_2_PI = 2 * Math.PI;
 
 const matrixMap = [
   [1, 1, 1, 1, 1, 1, 1],
@@ -23,7 +22,7 @@ function sleep(ms) {
 
 export var direction = 50; //grados
 
-var cantidadRayos = 100;
+export var cantidadRayos = 100;
 
 
 
@@ -63,22 +62,17 @@ window.onload = gameLoop();
 window.addEventListener("keydown", onKeyboardPress);
 window.addEventListener("mousemove", mouse_monitor);
 
-var amplitud_luz = Math.PI/4;
+export var amplitud_luz = Math.PI/4;
 
 function mouse_monitor(e) {
   var mouse_x = e.pageX;
   var mouse_y = e.pageY;
 
-  direction = Math.atan2(
+  direction = adjustDirection(Math.atan2(
     mouse_y - (player.y - 1) * grid_size,
     mouse_x - (player.x - 1) * grid_size
-  );
+  ));
 
-  if (direction >= M_2_PI) {
-    direction -= M_2_PI;
-  } else if (direction < 0) {
-    direction += M_2_PI;
-  }
 }
 
 setInterval(gameLoop, 30); // could be improved. Search for requestAnimationFrame ? 
@@ -117,22 +111,6 @@ function onKeyboardPress(event) {
     case "KeyD":
       player.x += 0.08;
       break;
-  }
-}
-
-
-
-function renderWorld() {
-  world.draw();
-  const tope =  (direction+amplitud_luz/2)
-  const incremento = amplitud_luz / cantidadRayos;
-  for (var ray_direction = direction - (amplitud_luz/2); ray_direction < tope; ray_direction+=incremento) {
-    drawRay(
-      null,
-      player.x,
-      player.y,
-      ray_direction
-    );
   }
 }
 

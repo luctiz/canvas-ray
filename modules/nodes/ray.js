@@ -1,9 +1,6 @@
-import { distance, reflect , decimalToHex} from "../common.js";
+import { distance, reflect , decimalToHex, M_2_PI, M_PI_2, M_3_PI_2} from "../common.js";
 import Node from "../node.js";
 import { grid_size } from "./world.js";
-const M_PI_2 = Math.PI / 2;
-const M_3_PI_2 = (3 * Math.PI) / 2;
-const M_2_PI = 2 * Math.PI;
 
 
 const MAX_DEPTH = 10;
@@ -26,7 +23,7 @@ export default class Ray extends Node{
       this.color_start = `${color.substr(0,7)}${decimalToHex(Math.min(255, dist_restante * 255 / this.max_dist ))}`;
 
       dist_restante -= dist_colision;
-      dist_restante /= 2; //reflectividad de pared. 1 sería simular un espejo
+      //dist_restante /= 2; //reflectividad de pared. 1 sería simular un espejo
 
       rebotes_restantes--;
       var [vecreflect_x, vecreflect_y] = reflect(
@@ -55,8 +52,6 @@ export default class Ray extends Node{
         this.stopAt = (dist_restante + dist_colision) / dist_colision; // a veces se actualiza raro esto. Capaz hay un bug por acá.
         this.color_end = `#00000000`;
       }
-      console.log(this.color_start,this.color_end);
-
     }
 
     update(){

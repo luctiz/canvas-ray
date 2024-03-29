@@ -1,3 +1,7 @@
+export const M_PI_2 = Math.PI / 2;
+export const M_3_PI_2 = (3 * Math.PI) / 2;
+export const M_2_PI = 2 * Math.PI;
+
 export function decimalToHex(decimal) {
   decimal = Math.floor(decimal);
   // Convert decimal to hexadecimal
@@ -16,4 +20,13 @@ export function reflect(dir_x, dir_y, normal_x, normal_y) {
   let ref_y = dir_y - 2 * dot * normal_y;
 
   return [ref_x, ref_y];
+}
+
+export function adjustDirection(direction){
+  if (direction >= M_2_PI) {
+    return direction - M_2_PI;
+  } else if (direction < 0) {
+    return direction + M_2_PI;
+  }
+  return direction;
 }
