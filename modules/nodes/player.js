@@ -16,7 +16,7 @@ export default class Player extends Node{
         const tope =  (direction+amplitud_luz/2) // bug: a veces la cantidad de rayos es 1 mas que la que debería ser.
         const incremento = amplitud_luz / cantidadRayos;
         for (var ray_direction = direction - (amplitud_luz/2); ray_direction < tope; ray_direction+=incremento) {
-            let ray = new Ray(this.ctx, this.map, this.x, this.y, adjustDirection(ray_direction), colorRayo, intensidadRayo, 20);
+            let ray = new Ray(this.ctx, this.map, this.x, this.y, adjustDirection(ray_direction), colorRayo, intensidadRayo);
             this.childNodes.push(ray);
         }
     }

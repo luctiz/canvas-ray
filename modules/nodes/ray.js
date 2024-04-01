@@ -7,9 +7,8 @@ import { grid_size } from "./world.js";
 const MAX_DEPTH = 10;
 
 export default class Ray extends Node{
-    constructor(ctx, map, start_x, start_y, direction, color, dist_restante, rebotes_restantes){
+    constructor(ctx, map, start_x, start_y, direction, color, dist_restante){
       super(ctx);
-      //console.log(color);
       this.max_dist = 8; // maxima distancia del rayo (refactorizar para sacarla luego???)
       this.start_x = start_x;
       this.start_y = start_y;
@@ -25,7 +24,6 @@ export default class Ray extends Node{
 
       dist_restante -= dist_colision;
 
-      rebotes_restantes--;
       var [vecreflect_x, vecreflect_y] = reflect(
         Math.cos(direction),
         Math.sin(direction),
@@ -43,16 +41,16 @@ export default class Ray extends Node{
       this.colorStops = []
       this.colorStops.push({})
 
-      if (dist_restante > 0 && rebotes_restantes > 0){
+      if (dist_restante > 0){
         this.stopAt = 1;
         this.color_end = `${color.substr(0,7)}${decimalToHex(Math.max(0, Math.min(255, dist_restante * 255 / this.max_dist )))}`;
         dist_restante *= reflectividadPared / 100;
         
         this.color_newRay = `${color.substr(0,7)}${decimalToHex(Math.max(0, Math.min(255, dist_restante * 255 / this.max_dist )))}`;
-        let ray = new Ray(ctx, map, raycolision_x, raycolision_y, reflection_dir, this.color_newRay, dist_restante, rebotes_restantes);
+        let ray = new Ray(ctx, map, raycolision_x, raycolision_y, reflection_dir, this.color_newRay, dist_restante);
         this.childNodes.push(ray);
       } else {
-        this.stopAt = (dist_restante + dist_colision) / dist_colision; // a veces se actualiza raro esto. Capaz hay un bug por acá.
+        this.stopAt = (dist_restante + dist_colision) / dist_colision;
         this.color_end = `#00000000`;
       }
     }
@@ -98,7 +96,6 @@ export default class Ray extends Node{
         wallFoundX = null;
         wallFoundY = null;
         
-        //
         for (let i = 0; i <= MAX_DEPTH && !(wallFoundX && wallFoundY); i++) {
             if (!wallFoundX) {
             let wallFound = map.getTile(Math.floor(xIntercept), y + tileStepY);
