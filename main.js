@@ -45,6 +45,7 @@ function onColorFondoChange(e){
 
 
 document.getElementById("AmplitudSlider").addEventListener("input", onAmplitudSliderChange)
+export var amplitud_luz = Math.PI/4;
 function onAmplitudSliderChange(e){
   amplitud_luz=parseInt(e.target.value) * Math.PI / 180;
 }
@@ -85,7 +86,6 @@ window.onload = gameLoop();
 window.addEventListener("keydown", onKeyboardPress);
 window.addEventListener("mousemove", mouse_monitor);
 
-export var amplitud_luz = Math.PI/4;
 
 function mouse_monitor(e) {
   var mouse_x = e.pageX;
