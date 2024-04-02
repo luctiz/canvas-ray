@@ -17,44 +17,50 @@ const matrixMap = [
 
 export var direction = 50; //grados
 
+export var colorPared = '#BE0000';
 document.getElementById("colorPared").addEventListener("input", onColorParedChange)
-export var colorPared = '#ff0000';
+document.getElementById("colorPared").value = colorPared;
 function onColorParedChange(e){
   colorPared = e.target.value;
 }
 
+export var colorRayo = '#00FF4C';
 document.getElementById("colorRayo").addEventListener("input", onColorRayoChange)
-export var colorRayo = '#ffffffff';
+document.getElementById("colorRayo").value = colorRayo;
 function onColorRayoChange(e){
   colorRayo = e.target.value;
 }
 
-document.getElementById("colorFondo").addEventListener("input", onColorFondoChange)
 export var colorFondo = '#000000';
+document.getElementById("colorFondo").addEventListener("input", onColorFondoChange)
+document.getElementById("colorFondo").value = colorFondo;
 function onColorFondoChange(e){
   colorFondo = e.target.value;
 }
 
-
-document.getElementById("AmplitudSlider").addEventListener("input", onAmplitudSliderChange)
 export var amplitud_luz = Math.PI/4;
+document.getElementById("AmplitudSlider").addEventListener("input", onAmplitudSliderChange)
+document.getElementById("AmplitudSlider").value = amplitud_luz;
 function onAmplitudSliderChange(e){
   amplitud_luz=parseInt(e.target.value) * Math.PI / 180;
 }
 
 export var cantidadRayos = 100;
 document.getElementById("CantidadRayosSlider").addEventListener("input", onCantidadRayosSliderChange)
+document.getElementById("CantidadRayosSlider").value = cantidadRayos;
 function onCantidadRayosSliderChange(e){
   cantidadRayos = e.target.value;
 }
 
 export var intensidadRayo = 8;
 document.getElementById("IntensidadSlider").addEventListener("input", onIntensidadSliderChange)
+document.getElementById("IntensidadSlider").value = intensidadRayo;
 function onIntensidadSliderChange(e){
   intensidadRayo = e.target.value;
 }
 
 export var reflectividadPared = 100;
+document.getElementById("ReflectividadParedSlider").value = reflectividadPared;
 document.getElementById("ReflectividadParedSlider").addEventListener("input", onReflectividadParedSliderChange)
 function onReflectividadParedSliderChange(e){
   reflectividadPared = e.target.value;
