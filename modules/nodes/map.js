@@ -1,15 +1,17 @@
-const xsize = 7;
-const ysize = 7;
+export var grid_size = 150;
 
-import { grid_size } from "./world.js";
 import { colorFondo, colorPared } from "../../main.js";
+import { clamp } from "../common.js";
 import Node from "../node.js";
 export class Map extends Node {
   constructor(ctx, matrixMap, width, height) {
     super(ctx);
     this.matrixMap = matrixMap;
+    this.xsize = matrixMap.length;
+    this.ysize = matrixMap[0].length;
     this.width = width;
     this.height = height;
+    grid_size = (this.width / this.xsize);
   }
 
   render() {
@@ -21,12 +23,12 @@ export class Map extends Node {
 
     // paredes
     this.ctx.fillStyle = colorPared;
-    for (var i = 0; i < xsize; i++) {
-      for (var j = 0; j < ysize; j++) {
+    for (var i = 0; i < this.xsize; i++) {
+      for (var j = 0; j < this.ysize; j++) {
         if (this.matrixMap[j][i] == 1) {
           this.ctx.fillRect(
-            i * grid_size - grid_size,
-            j * grid_size - grid_size,
+            i * grid_size,
+            j * grid_size,
             grid_size,
             grid_size
           );
@@ -36,7 +38,13 @@ export class Map extends Node {
   }
 
   getTile(x, y) {
-    if (x < 0 || x >= xsize || y < 0 || y >= ysize) return null;
+    if (x < 0 || x >= this.xsize || y < 0 || y >= this.ysize) return null;
     return this.matrixMap[y][x];
+  }
+
+  toggleTile(screenX, screenY){
+    let tileX = clamp(0, Math.floor(screenX / grid_size), this.xsize);
+    let tileY = clamp(0, Math.floor(screenY / grid_size), this.ysize);
+    this.matrixMap[tileY][tileX] = !this.matrixMap[tileY][tileX];
   }
 }

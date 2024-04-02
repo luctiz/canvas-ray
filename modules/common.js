@@ -30,3 +30,7 @@ export function adjustDirection(direction){
   }
   return direction;
 }
+
+export function clamp(min, value, max){
+  return Math.min(Math.max(value, min), max);
+}

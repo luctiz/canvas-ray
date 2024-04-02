@@ -1,29 +1,20 @@
 import Player from './modules/nodes/player.js';
-import { Map } from './modules/nodes/map.js';
-import {World, grid_size} from './modules/nodes/world.js';
+import { Map, grid_size } from './modules/nodes/map.js';
+import {World} from './modules/nodes/world.js';
 import { adjustDirection } from './modules/common.js';
-//VER DE USAR GLMATRIX PARA EL RAYCAST? (si es posible)
 
 const matrixMap = [
-  [1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 0, 0, 0, 0, 1],
-  [1, 1, 0, 0, 0, 0, 1],
-  [1, 0, 1, 0, 0, 0, 1],
-  [1, 0, 0, 1, 0, 0, 1],
-  [1, 0, 0, 0, 0, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 0, 0, 1],
 ];
 
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-
 export var direction = 50; //grados
-
-
-
 
 document.getElementById("colorPared").addEventListener("input", onColorParedChange)
 export var colorPared = '#ff0000';
@@ -74,47 +65,36 @@ export const ctx = canvas.getContext("2d");
 
 var world = new World();
 let map = new Map(ctx, matrixMap, canvas.width, canvas.height);
-let player = new Player(ctx, map, 3.51, 3.5);
-
-
-const frameInterval = 1000 / 30; // 30 fps
+let player = new Player(ctx, map, 1.5, 1.5);
 
 world.childNodes.push(map);
 world.childNodes.push(player);
 
 window.onload = gameLoop();
 window.addEventListener("keydown", onKeyboardPress);
-window.addEventListener("mousemove", mouse_monitor);
+window.addEventListener("mousemove", onMouseMove);
+canvas.addEventListener("mousedown", onMouseDown);
 
-
-function mouse_monitor(e) {
+function onMouseMove(e) {
   var mouse_x = e.pageX;
   var mouse_y = e.pageY;
 
   direction = adjustDirection(Math.atan2(
-    mouse_y - (player.y - 1) * grid_size,
-    mouse_x - (player.x - 1) * grid_size
+    mouse_y - (player.y) * grid_size,
+    mouse_x - (player.x) * grid_size
   ));
-
 }
 
-setInterval(gameLoop, 30); // could be improved. Search for requestAnimationFrame ? 
+function onMouseDown(e) {
+  let canvasPosition = canvas.getBoundingClientRect();
+  map.toggleTile(e.screenX - canvasPosition.x, e.screenY - 90 - canvasPosition.y);
+}
+
+setInterval(gameLoop, 30); // could be improved. Search for requestAnimationFrame ? . Also increase FPS?
 
 function gameLoop(){
-  //while (world.isAlive){
-    //let time_start = Date.now();
     world.update();
-
     world.render();
-    //let time_end = Date.now();
-    //const elapsedTime = time_end - time_start;
-    //console.log(elapsedTime, frameInterval);
-    //if (elapsedTime < frameInterval){
-    //  console.log(frameInterval-elapsedTime);
-    //  sleep(10000000);
-      //sleep(frameInterval - elapsedTime)
-    //}
-  //}
 }
 
 function onKeyboardPress(event) {

@@ -1,7 +1,7 @@
 import { reflectividadPared } from "../../main.js";
-import { distance, reflect , decimalToHex, M_2_PI, M_PI_2, M_3_PI_2} from "../common.js";
+import { distance, reflect , decimalToHex, M_2_PI, M_PI_2, M_3_PI_2, clamp} from "../common.js";
 import Node from "../node.js";
-import { grid_size } from "./world.js";
+import { grid_size } from "./map.js";
 
 
 const MAX_DEPTH = 10;
@@ -20,7 +20,7 @@ export default class Ray extends Node{
       
       [this.end_x, this.end_y] = [raycolision_x, raycolision_y]
 
-      this.color_start = `${color.substr(0,7)}${decimalToHex(Math.min(255, dist_restante * 255 / this.max_dist ))}`;
+      this.color_start = `${color.substr(0,7)}${decimalToHex(clamp(0,dist_restante * 255 / this.max_dist , 255))}`;
 
       dist_restante -= dist_colision;
 
@@ -43,10 +43,10 @@ export default class Ray extends Node{
 
       if (dist_restante > 0){
         this.stopAt = 1;
-        this.color_end = `${color.substr(0,7)}${decimalToHex(Math.max(0, Math.min(255, dist_restante * 255 / this.max_dist )))}`;
+        this.color_end = `${color.substr(0,7)}${decimalToHex(clamp(0, dist_restante * 255 / this.max_dist, 255))}`;
         dist_restante *= reflectividadPared / 100;
         
-        this.color_newRay = `${color.substr(0,7)}${decimalToHex(Math.max(0, Math.min(255, dist_restante * 255 / this.max_dist )))}`;
+        this.color_newRay = `${color.substr(0,7)}${decimalToHex(clamp(0, dist_restante * 255 / this.max_dist, 255))}`;
         let ray = new Ray(ctx, map, raycolision_x, raycolision_y, reflection_dir, this.color_newRay, dist_restante);
         this.childNodes.push(ray);
       } else {
@@ -147,8 +147,8 @@ export default class Ray extends Node{
       super.render();
         // linear gradient from start to end of line
       var grad = this.ctx.createLinearGradient(
-        this.start_x * grid_size - grid_size, this.start_y * grid_size - grid_size,
-        this.end_x * grid_size - grid_size, this.end_y * grid_size - grid_size
+        this.start_x * grid_size, this.start_y * grid_size,
+        this.end_x * grid_size, this.end_y * grid_size
       );
     
       grad.addColorStop(0, this.color_start);
@@ -165,8 +165,8 @@ export default class Ray extends Node{
       this.ctx.strokeStyle = grad;
     
       this.ctx.beginPath();
-      this.ctx.moveTo(this.start_x * grid_size - grid_size, this.start_y * grid_size - grid_size);
-      this.ctx.lineTo(this.end_x * grid_size - grid_size, this.end_y * grid_size - grid_size);
+      this.ctx.moveTo(this.start_x * grid_size, this.start_y * grid_size);
+      this.ctx.lineTo(this.end_x * grid_size, this.end_y * grid_size);
       this.ctx.stroke();
     }
 
