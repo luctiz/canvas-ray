@@ -1,5 +1,5 @@
 import { reflectividadPared } from "../../main.js";
-import { distance, reflect , decimalToHex, M_2_PI, M_PI_2, M_3_PI_2, clamp} from "../common.js";
+import { distance, reflect , decimalToHex, M_2_PI, M_PI_2, M_3_PI_2, clamp, adjustDirection} from "../common.js";
 import Node from "../node.js";
 import { grid_size } from "./map.js";
 
@@ -20,28 +20,25 @@ export default class Ray extends Node{
       
       [this.end_x, this.end_y] = [raycolision_x, raycolision_y]
 
+      console.log({dist_restante}, {dist_colision});
+
       this.color_start = `${color.substr(0,7)}${decimalToHex(clamp(0,dist_restante * 255 / this.max_dist , 255))}`;
 
-      dist_restante -= dist_colision;
+      if (dist_colision > dist_restante){
+        this.stopAt = (dist_restante/dist_colision);
+        this.color_end = `${color.substr(0,7)}${"00"}`;
+      } else {
+        dist_restante -= dist_colision;
 
-      var [vecreflect_x, vecreflect_y] = reflect(
-        Math.cos(direction),
-        Math.sin(direction),
-        wallNormal_x,
-        wallNormal_y
-      );
-      let reflection_dir = Math.atan2(vecreflect_y, vecreflect_x);
-  
-      if (reflection_dir >= M_2_PI) {
-        reflection_dir -= M_2_PI;
-      } else if (reflection_dir < 0) {
-        reflection_dir += M_2_PI;
-      }
+        var [vecreflect_x, vecreflect_y] = reflect(
+          Math.cos(direction),
+          Math.sin(direction),
+          wallNormal_x,
+          wallNormal_y
+        );
 
-      this.colorStops = []
-      this.colorStops.push({})
+        let reflection_dir = adjustDirection(Math.atan2(vecreflect_y, vecreflect_x));
 
-      if (dist_restante > 0){
         this.stopAt = 1;
         this.color_end = `${color.substr(0,7)}${decimalToHex(clamp(0, dist_restante * 255 / this.max_dist, 255))}`;
         dist_restante *= reflectividadPared / 100;
@@ -49,19 +46,12 @@ export default class Ray extends Node{
         this.color_newRay = `${color.substr(0,7)}${decimalToHex(clamp(0, dist_restante * 255 / this.max_dist, 255))}`;
         let ray = new Ray(ctx, map, raycolision_x, raycolision_y, reflection_dir, this.color_newRay, dist_restante);
         this.childNodes.push(ray);
-      } else {
-        this.stopAt = (dist_restante + dist_colision) / dist_colision;
-        this.color_end = `#00000000`;
       }
     }
 
     update(){
         super.update();
         super.kill();
-    }
-
-    draw(){
-
     }
 
     static getCollissionRay(map, raystart_x, raystart_y, dir){
@@ -153,14 +143,6 @@ export default class Ray extends Node{
     
       grad.addColorStop(0, this.color_start);
       grad.addColorStop(this.stopAt, this.color_end);
-      // if (dist_restante > dist_colision) {
-      //   grad.addColorStop(0, );
-      //   grad.addColorStop(1,`${colorRayo}${decimalToHex((dist_restante - dist_colision) * 255 / this.max_dist / 4)}`);
-      // } else {
-      //   grad.addColorStop(0, `${colorRayo}${decimalToHex(dist_restante * 255 / this.max_dist / 4)}`);
-      //   grad.addColorStop(dist_restante / dist_colision, `#00000000`);
-      //   grad.addColorStop(1, `#00000000`);
-      // }
     
       this.ctx.strokeStyle = grad;
     
@@ -170,45 +152,44 @@ export default class Ray extends Node{
       this.ctx.stroke();
     }
 
-
-      static getTileSteps(dir) {
-        let tileStepX, tileStepY;
-        if (0 <= dir && dir <= M_PI_2) {
-          tileStepX = 1;
-          tileStepY = 1;
-        } else if (M_PI_2 < dir && dir <= Math.PI) {
-          tileStepX = -1;
-          tileStepY = 1;
-        } else if (Math.PI < dir && dir <= M_3_PI_2) {
-          tileStepX = -1;
-          tileStepY = -1;
-        } else {
-          tileStepX = 1;
-          tileStepY = -1;
-        }
-        return [tileStepX, tileStepY];
+    static getTileSteps(dir) {
+      let tileStepX, tileStepY;
+      if (0 <= dir && dir <= M_PI_2) {
+        tileStepX = 1;
+        tileStepY = 1;
+      } else if (M_PI_2 < dir && dir <= Math.PI) {
+        tileStepX = -1;
+        tileStepY = 1;
+      } else if (Math.PI < dir && dir <= M_3_PI_2) {
+        tileStepX = -1;
+        tileStepY = -1;
+      } else {
+        tileStepX = 1;
+        tileStepY = -1;
       }
-      
-      static getXYSteps(tileStepX, tileStepY, dir) {
-        let xStep,yStep;
-        if (dir == 0) {
-          xStep = 60;
-          yStep = 0;
-        } else if (dir == Math.PI) {
-          xStep = -60;
-          yStep = 0;
-        } else if (dir == M_PI_2) {
-          xStep = 0;
-          yStep = -60;
-        } else if (dir == M_3_PI_2) {
-          xStep = 0;
-          yStep = 60;
-        } else {
-          let auxTanDirection = Math.tan(dir);
-          xStep = tileStepY / auxTanDirection;
-          yStep = tileStepX * auxTanDirection;
-        }
-      
-        return [xStep, yStep];
+      return [tileStepX, tileStepY];
+    }
+    
+    static getXYSteps(tileStepX, tileStepY, dir) {
+      let xStep,yStep;
+      if (dir == 0) {
+        xStep = 60;
+        yStep = 0;
+      } else if (dir == Math.PI) {
+        xStep = -60;
+        yStep = 0;
+      } else if (dir == M_PI_2) {
+        xStep = 0;
+        yStep = -60;
+      } else if (dir == M_3_PI_2) {
+        xStep = 0;
+        yStep = 60;
+      } else {
+        let auxTanDirection = Math.tan(dir);
+        xStep = tileStepY / auxTanDirection;
+        yStep = tileStepX * auxTanDirection;
       }
+    
+      return [xStep, yStep];
+    }
 }
