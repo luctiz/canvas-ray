@@ -19,9 +19,7 @@ export default class Ray extends Node{
       ] = Ray.getCollissionRay(map, start_x, start_y, direction);
       
       [this.end_x, this.end_y] = [raycolision_x, raycolision_y]
-
-      console.log({dist_restante}, {dist_colision});
-
+      
       this.color_start = `${color.substr(0,7)}${decimalToHex(clamp(0,dist_restante * 255 / this.max_dist , 255))}`;
 
       if (dist_colision > dist_restante){
