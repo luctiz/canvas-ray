@@ -13,11 +13,9 @@ export default class Player extends Node{
 
     update(){
         super.update();
-        const epsilon = 1e-10; // A small value to handle floating-point precision issues
-        const tope =  (direction+amplitud_luz/2) - epsilon;
-        const incremento = amplitud_luz / cantidadRayos;
-
-        for (let ray_direction = direction - (amplitud_luz/2); ray_direction < tope; ray_direction+=incremento) {
+        var tope = direction + (amplitud_luz/2);
+        const incremento = (amplitud_luz) / cantidadRayos;
+        for (let ray_direction = direction - (amplitud_luz/2) + (incremento/2); ray_direction < tope; ray_direction+=incremento) {
             let ray = new Ray(this.ctx, this.map, this.x, this.y, adjustDirection(ray_direction), colorRayo, intensidadRayo);
             this.childNodes.push(ray);
         }
